@@ -7,7 +7,8 @@
       "metadata": {
         "description": "Name of the resource"
       },
-      "maxLength": 15
+      "maxLength": 15,
+      "defaultValue": "[uniqueString(subscription().subscriptionId)]"
     },
     "environments": {
       "defaultValue": [
@@ -21,6 +22,31 @@
         "description": "Array with the names for the environment slots"
       },
       "maxLength": 19
+    },
+    "LogsRetentionInDays": {
+      "type": "int",
+      "defaultValue": 7,
+      "metadata": {
+        "description": "Number of days to retain logs"
+      }
+    },
+    "LogsWorkspaceLocation": {
+      "type": "string",
+      "allowedValues": [
+        "eastus",
+        "westeurope",
+        "southeastasia",
+        "australiasoutheast",
+        "westcentralus",
+        "japaneast",
+        "uksouth",
+        "centralindia",
+        "canadacentral"
+      ],
+      "defaultValue": "westeurope",
+      "metadata": {
+        "description": "The Azure region the Logs Workspace will be deployed to"
+      }
     },
     "transparentDataEncryption": {
         "type": "string",
@@ -41,13 +67,15 @@
         "type": "string",
         "metadata": {
             "description": "The username for administering the SQL Server"
-        }
+        },
+        "defaultValue":"dbaMan"
     },
     "sqlServerAdminPassword": {
-        "type": "string",
+        "type": "securestring",
         "metadata": {
             "description": "The password for administering the SQL Server"
-        }
+        },
+        "defaultValue": "[concat('L1',uniqueString(subscription().id),'#')]"
     },
     "sqlDatabaseEdition": {
         "type": "string",
@@ -58,7 +86,8 @@
           "Basic",
           "Standard",
           "Premium"
-        ]
+        ],
+        "defaultValue": "Basic"
       },
       "sqlDatabaseCollation": {
         "type": "string",
@@ -74,16 +103,16 @@
           "description": "The maximum size, in bytes, for the database"
         }
       },
-      "AAD Admin Login": {
-          "type": "string",
-          "metadata": {
-              "description": "The Login Name for the Azure Active Directory user to be a server admin"
-          }
-      },
-      "AAD Admin ObjectID": {
+      "AADAdminLogin": {
         "type": "string",
         "metadata": {
-            "description": "The Object ID for the Azure Active Directory user to be a server admin"
+            "description": "The Login ID for the Azure Active Directory user or group to be a server admin"
+        }
+    },
+      "AADAdminObjectID": {
+        "type": "string",
+        "metadata": {
+            "description": "The Object ID for the Azure Active Directory user or group to be a server admin"
         }
     },
     "AlertWindowSizeInMinutes": {
@@ -160,7 +189,34 @@
     "storageAccountNameCustomer": "[concat(uniqueString(resourceGroup().id),'cbs')]",
     "storageEndpoint": "[concat('https://',variables('storageAccountName'),'.blob.core.windows.net')]",
     "customEmails": "[split(parameters('AlertSendToEmailAddress'), ',')]",
-    "vaultName": "[concat('kv',parameters('baseResourceName'))]"
+    "vaultNameApp": "[concat('kv',parameters('baseResourceName'),'app')]",
+    "vaultName": "[concat('kv',parameters('baseResourceName'))]",
+    "aggregateWorkspaceName": "ServiceWorkspace",
+    "SQLAssessment": {
+      "Name": "[Concat('SQLAssessment', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "SQLAssessment"
+    },
+    "ApplicationInsights": {
+      "Name": "[Concat('ApplicationInsights', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "ApplicationInsights"
+    },
+    "KeyVaultAnalytics": {
+      "Name": "[Concat('KeyVaultAnalytics', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "KeyVaultAnalytics"
+    },
+    "AzureSQLAnalytics": {
+      "Name": "[Concat('AzureSQLAnalytics', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "AzureSQLAnalytics"
+    },
+    "AzureActivity": {
+      "Name": "[Concat('AzureActivity', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "AzureActivity"
+    },
+    "AzureWebAppsAnalytics": {
+      "Name": "[Concat('AzureWebAppsAnalytics', '(', variables('aggregateWorkspaceName'), ')')]",
+      "GalleryName": "AzureWebAppsAnalytics"
+    }
+
   },
   "resources": [
     {
@@ -173,7 +229,7 @@
           "displayName": "AppInsightsComponent"
       },
       "properties": {
-          "applicationId": "[concat('ai-',parameters('baseResourceName'),'-CustomerSite')]"
+          "applicationId": "[concat('ai-',parameters('baseResourceName'),'-CustomerSite')]"         
       }
   },
   {
@@ -220,17 +276,27 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountnameCustomer')]",
-      "apiVersion": "2016-01-01",
+      "apiVersion": "2017-10-01",
       "location": "[resourceGroup().location]",
       "comments": "This storage account is used to store Customer images",
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "Storage",
+      "kind": "StorageV2",
       "tags": {
         "ObjectName": "[variables('storageAccountNameCustomer')]"
       },
-      "properties": {}
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            }
+          }
+        },
+        "supportsHttpsTrafficOnly": true
+      }
     },
        {
       "name": "[variables('databaseServerName')]",
@@ -298,8 +364,8 @@
             "location": "[resourceGroup().location]",
             "properties": {
                 "administratorType": "ActiveDirectory",
-                "login": "[parameters('AAD Admin Login')]",
-                "sid": "[parameters('AAD Admin ObjectID')]",
+                "login": "[parameters('AADAdminLogin')]",
+                "sid": "[parameters('AADAdminObjectID')]",
                 "tenantId": "[variables('AAD TenantID')]"
             },
             "dependsOn": [
@@ -618,7 +684,7 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults",
-      "name": "[variables('vaultName')]",
+      "name": "[variables('vaultNameApp')]",
       "apiVersion": "2015-06-01",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -651,10 +717,378 @@
                   "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountNameCustomer')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
               },
               "dependsOn": [
-                  "[concat('Microsoft.KeyVault/vaults/', variables('vaultName'))]"
+                  "[concat('Microsoft.KeyVault/vaults/', variables('vaultNameApp'))]"
               ]
           }
       ]
+  },
+  {
+    "type": "Microsoft.KeyVault/vaults",
+    "name": "[variables('vaultName')]",
+    "apiVersion": "2015-06-01",
+    "location": "[resourceGroup().location]",
+    "properties": {
+        "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('webAppPortalName')), '2016-08-01', 'Full').identity.tenantId]",
+        "accessPolicies": [
+            {
+                "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('webAppPortalName')), '2016-08-01', 'Full').identity.tenantId]",
+                "objectId": "[parameters('AADAdminObjectID')]",
+                "permissions": {                  
+                    "secrets": [
+                        "get",
+                        "list"
+                    ]
+                }
+            }
+        ],
+        "sku": {
+            "family": "A",
+            "name": "Standard"
+        }
+    },
+    "resources": [
+        {
+            "type": "secrets",
+            "name": "DBPwd",
+            "apiVersion": "2015-06-01",
+            "properties": {
+                "value": "[parameters('sqlServerAdminPassword')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('vaultName'))]"
+            ]
+        }
+    ]
+},
+  {
+    "name": "[variables('aggregateWorkspaceName')]",
+    "type": "Microsoft.OperationalInsights/workspaces",
+    "apiVersion": "2017-04-26-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "tags": {},
+    "dependsOn": [
+      "[resourceId('microsoft.insights/components/', concat('ai-',parameters('baseResourceName'),'-CustomerSite'))]"
+    ],
+    "properties": {
+      "retention": "[parameters('LogsRetentionInDays')]"
+    },
+    "resources": [
+      {
+        "name": "AzureActivityLog",
+        "type": "datasources",
+        "apiVersion": "2015-11-01-preview",
+        "dependsOn": [
+            "[concat('Microsoft.OperationalInsights/workspaces/',variables('aggregateWorkspaceName'))]"
+        ],
+        "kind": "AzureActivityLog",
+        "properties": {
+            "linkedResourceId": "[concat(subscription().id, '/providers/Microsoft.Insights/eventTypes/management')]"
+        }
+    }
+    ]
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('SQLAssessment').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('SQLAssessment').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('SQLAssessment').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('SQLAssessment').GalleryName)]",
+      "promotionCode": ""
+    }
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('ApplicationInsights').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('ApplicationInsights').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('ApplicationInsights').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('ApplicationInsights').GalleryName)]",
+      "promotionCode": ""
+    },
+    "resources": [
+      
+    ]
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('KeyVaultAnalytics').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('KeyVaultAnalytics').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('KeyVaultAnalytics').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('KeyVaultAnalytics').GalleryName)]",
+      "promotionCode": ""
+    }
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('AzureSQLAnalytics').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('AzureSQLAnalytics').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('AzureSQLAnalytics').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('AzureSQLAnalytics').GalleryName)]",
+      "promotionCode": ""
+    }
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('AzureActivity').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('AzureActivity').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('AzureActivity').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('AzureActivity').GalleryName)]",
+      "promotionCode": ""
+    }
+  },
+  {
+    "apiVersion": "2015-11-01-preview",
+    "location": "[parameters('LogsWorkspaceLocation')]",
+    "name": "[variables('AzureWebAppsAnalytics').Name]",
+    "type": "Microsoft.OperationsManagement/solutions",
+    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('AzureWebAppsAnalytics').Name)]",
+    "dependsOn": [
+      "[concat('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]"
+    ],
+    "properties": {
+      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]" 
+    },
+    "plan": {
+      "name": "[variables('AzureWebAppsAnalytics').Name]",
+      "publisher": "Microsoft",
+      "product": "[Concat('OMSGallery/', variables('AzureWebAppsAnalytics').GalleryName)]",
+      "promotionCode": ""
+    }
+  },
+  {  
+    "type":"Microsoft.KeyVault/vaults/providers/diagnosticsettings",
+    "name":"[concat(variables('vaultName'), '/Microsoft.Insights/service')]",
+    "apiVersion":"2016-09-01",
+    "location":"[resourceGroup().location]",
+    "dependsOn":[  
+      "[concat('Microsoft.KeyVault/vaults/', variables('vaultName'))]",
+      "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+    ],
+    "properties":{  
+      "storageAccountId":"[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+      "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
+      "logs":[  
+        {  
+          "category":"AuditEvent",
+          "enabled":true,
+          "retentionPolicy":{  
+            "enabled":true,
+            "days":"[parameters('LogsRetentionInDays')]"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "Microsoft.Insights/components/providers/diagnosticSettings",
+    "name": "[concat('ai-',parameters('baseResourceName'),'-CustomerSite','/Microsoft.Insights/LogAnalyticsIntegrationCustomer')]",
+    "apiVersion": "2017-05-01-preview",
+    "dependsOn": [
+      "[concat('Microsoft.Insights/components/','ai-',parameters('baseResourceName'),'-CustomerSite')]",
+      "[variables('aggregateWorkspaceName')]"
+    ],
+		"properties": {
+			"name": "LogAnalyticsIntegrationCustomer",
+			"workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]"
+			}
+  },
+  {
+    "type": "Microsoft.Insights/components/providers/diagnosticSettings",
+    "name": "[concat('ai-',parameters('baseResourceName'),'-OperatorSite','/Microsoft.Insights/LogAnalyticsIntegrationOperator')]",
+    "apiVersion": "2017-05-01-preview",
+    "dependsOn": [
+      "[resourceId('Microsoft.Insights/components/',concat('ai-',parameters('baseResourceName'),'-OperatorSite'))]",
+      "[variables('aggregateWorkspaceName')]"
+    ],
+		"properties": {
+			"name": "LogAnalyticsIntegrationOperator",
+			"workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]"
+			}
+  },
+  {
+		"type": "Microsoft.Sql/servers/databases/providers/diagnosticSettings",
+		"name": "[concat(variables('databaseServerName'),'/', variables('databaseName'),'/Microsoft.Insights/SQLLogAnalyticsIntegration')]",
+		"apiVersion": "2017-05-01-preview",
+		"dependsOn": [
+			"[variables('databaseServerName')]"
+		],
+		"properties": {
+			"name": "SQLLogAnalyticsIntegration",
+			"workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('aggregateWorkspaceName'))]",
+			"logs": [
+			{
+				"category": "Errors",
+				"enabled": true,
+				"retentionPolicy": {
+					"days": 7,
+					"enabled": false
+        }
+      },
+      {
+        "category": "Audit",
+        "enabled": true,
+        "retentionPolicy": {
+          "days": 90,
+          "enabled": false
+        }
+      },
+      {
+        "category": "SQLSecurityAuditEvents",
+        "enabled": true,
+        "retentionPolicy": {
+          "days": 90,
+          "enabled": false
+				}
+			}
+			],
+			"metrics": [
+			{
+				"category": "AllMetrics",
+				"enabled": true,
+				"retentionPolicy": {
+					"enabled": false,
+					"days": 7
+				}
+			}
+			]
+		}
+  },
+	{  
+    "type":"Microsoft.Web/sites/providers/diagnosticsettings",
+    "name":"[concat(variables('webAppPortalName'), '/Microsoft.Insights/service')]",
+    "apiVersion":"2016-09-01",
+    "location":"[resourceGroup().location]",
+    "dependsOn":[  
+      "[variables('webAppPortalName')]"
+    ],
+    "properties":{  
+      "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
+      "metrics":[  
+        {  
+          "category":"AllMetrics",
+          "enabled":true,
+          "retentionPolicy":{  
+            "enabled":true,
+            "days":"[parameters('LogsRetentionInDays')]"
+          }
+        }
+      ]
+    }
+  },
+  {  
+    "type":"Microsoft.Web/sites/providers/diagnosticsettings",
+    "name":"[concat(variables('webAppOperatorPortalName'), '/Microsoft.Insights/service')]",
+    "apiVersion":"2016-09-01",
+    "location":"[resourceGroup().location]",
+    "dependsOn":[  
+      "[variables('webAppOperatorPortalName')]"
+    ],
+    "properties":{  
+      "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
+      "metrics":[  
+        {  
+          "category":"AllMetrics",
+          "enabled":true,
+          "retentionPolicy":{  
+          "enabled":true,
+          "days":"[parameters('LogsRetentionInDays')]"
+          }
+        }
+     ]
+    }
+  },
+  {  
+    "type":"Microsoft.Web/sites/providers/diagnosticsettings",
+    "name":"[concat(variables('apiAppName'), '/Microsoft.Insights/service')]",
+    "apiVersion":"2016-09-01",
+    "location":"[resourceGroup().location]",
+    "dependsOn":[  
+      "[variables('apiAppName')]"
+    ],
+    "properties":{  
+      "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
+      "metrics":[  
+        {  
+          "category":"AllMetrics",
+          "enabled":true,
+          "retentionPolicy":{  
+            "enabled":true,
+            "days":"[parameters('LogsRetentionInDays')]"
+          }
+        }
+      ]
+    }
+  },
+  {  
+    "type":"Microsoft.Web/serverfarms/providers/diagnosticsettings",
+    "name":"[concat(variables('appServicePlanName'), '/Microsoft.Insights/service')]",
+    "apiVersion":"2016-09-01",
+    "location":"[resourceGroup().location]",
+    "dependsOn":[  
+      "[variables('appServicePlanName')]"
+    ],
+    "properties":{  
+      "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
+      "metrics":[  
+        {  
+          "category":"AllMetrics",
+          "enabled":true,
+          "retentionPolicy":{  
+            "enabled":true,
+            "days":"[parameters('LogsRetentionInDays')]"
+          }
+        }
+      ]
+    }
   }
   ]
 }

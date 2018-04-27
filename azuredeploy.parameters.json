@@ -2,22 +2,10 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "baseResourceName": {
-      "value": "iapaasofftest99"
-    },
-    "sqlServerAdminLogin": {
-        "value": "dbaMan"
-    },
-    "sqlServerAdminPassword": {
-        "value": "<SOMETHINGCOMPLEXHERE>"
-    },
-    "sqlDatabaseEdition": {
-        "value": "Basic"
-    },
-    "AAD Admin Login": {
+    "AADAdminLogin": {
         "value": "<YOUR AAD EMAIL ID>"
     },
-    "AAD Admin ObjectID": {
+    "AADAdminObjectID": {
         "value": "<YOUR AAD Account Principal ID (Guid)"
     },
     "AlertSendToEmailAddress": {
