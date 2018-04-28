@@ -84,7 +84,7 @@ if [[ $aadUserMail == *"live.com#"* ]]; then
     upn="$upnLeft#EXT#@$upnRight.onmicrosoft.com"
     aadUserMail=$(echo $aadUserMail | cut -d '#' -f 2)
 else   
-    $upn=aadUserMail
+    upn=$(echo $aadUserMail)
 fi
 aadUserId=$(az ad user show --upn-or-object-id $upn | jq ".objectId" -r)
 
