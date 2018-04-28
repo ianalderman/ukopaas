@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "AADAdminLogin": {
-        "value": "<YOUR AAD EMAIL ID>"
+        "value": "<YOUR LOGIN NAME>"
     },
     "AADAdminObjectID": {
-        "value": "<YOUR AAD Account Principal ID (Guid)"
+        "value": "<VALID GROUP ID>"
     },
     "AlertSendToEmailAddress": {
-        "value": "<VALID EMAIL ADDRESS>"
+        "value": "<YOUR EMAIL ADDRESS>"
     }
   }
 }

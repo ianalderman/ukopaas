@@ -191,7 +191,7 @@
     "customEmails": "[split(parameters('AlertSendToEmailAddress'), ',')]",
     "vaultNameApp": "[concat('kv',parameters('baseResourceName'),'app')]",
     "vaultName": "[concat('kv',parameters('baseResourceName'))]",
-    "aggregateWorkspaceName": "ServiceWorkspace",
+    "aggregateWorkspaceName": "[concat('ServiceWorkspace-',parameters('baseResourceName'))]",
     "SQLAssessment": {
       "Name": "[Concat('SQLAssessment', '(', variables('aggregateWorkspaceName'), ')')]",
       "GalleryName": "SQLAssessment"
@@ -959,7 +959,8 @@
 		"name": "[concat(variables('databaseServerName'),'/', variables('databaseName'),'/Microsoft.Insights/SQLLogAnalyticsIntegration')]",
 		"apiVersion": "2017-05-01-preview",
 		"dependsOn": [
-			"[variables('databaseServerName')]"
+      "[variables('databaseServerName')]",
+      "[variables('aggregateWorkspaceName')]"
 		],
 		"properties": {
 			"name": "SQLLogAnalyticsIntegration",
@@ -1008,7 +1009,8 @@
     "apiVersion":"2016-09-01",
     "location":"[resourceGroup().location]",
     "dependsOn":[  
-      "[variables('webAppPortalName')]"
+      "[variables('webAppPortalName')]",
+      "[variables('aggregateWorkspaceName')]"
     ],
     "properties":{  
       "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
@@ -1030,7 +1032,8 @@
     "apiVersion":"2016-09-01",
     "location":"[resourceGroup().location]",
     "dependsOn":[  
-      "[variables('webAppOperatorPortalName')]"
+      "[variables('webAppOperatorPortalName')]",
+      "[variables('aggregateWorkspaceName')]"
     ],
     "properties":{  
       "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
@@ -1052,7 +1055,8 @@
     "apiVersion":"2016-09-01",
     "location":"[resourceGroup().location]",
     "dependsOn":[  
-      "[variables('apiAppName')]"
+      "[variables('apiAppName')]",
+      "[variables('aggregateWorkspaceName')]"
     ],
     "properties":{  
       "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
@@ -1074,7 +1078,8 @@
     "apiVersion":"2016-09-01",
     "location":"[resourceGroup().location]",
     "dependsOn":[  
-      "[variables('appServicePlanName')]"
+      "[variables('appServicePlanName')]",
+      "[variables('aggregateWorkspaceName')]"
     ],
     "properties":{  
       "workspaceId":"[resourceId('Microsoft.OperationalInsights/workspaces', variables('aggregateWorkspaceName'))]",
