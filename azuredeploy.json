@@ -363,7 +363,7 @@
           "name": "Default",
           "dependsOn": [
             "[concat('Microsoft.Sql/servers/', variables('databaseServerName'))]",
-            "[concat('Microsoft.Sql/servers/', variables('databaseServerName'), '/auditingPolicies/Default')]"
+            "[concat('Microsoft.Sql/servers/', variables('databaseServerName'), '/auditingSettings/Default')]"
           ],
           "properties": {
               "state": "Enabled",
