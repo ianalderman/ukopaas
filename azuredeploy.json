@@ -191,7 +191,7 @@
     "customEmails": "[split(parameters('AlertSendToEmailAddress'), ',')]",
     "vaultNameApp": "[concat('kv',parameters('baseResourceName'),'app')]",
     "vaultName": "[concat('kv',parameters('baseResourceName'))]",
-    "aggregateWorkspaceName": "[concat('ServiceWorkspace-',parameters('baseResourceName'))]",
+    "aggregateWorkspaceName": "[concat('ServiceWorkspace-',parameters('baseResourceName'),'-',uniqueString(resourceGroup().id))]",
     "SQLAssessment": {
       "Name": "[Concat('SQLAssessment', '(', variables('aggregateWorkspaceName'), ')')]",
       "GalleryName": "SQLAssessment"
@@ -978,6 +978,7 @@
 		"apiVersion": "2017-05-01-preview",
 		"dependsOn": [
       "[variables('databaseServerName')]",
+      "[variables('databaseName')]",
       "[variables('aggregateWorkspaceName')]"
 		],
 		"properties": {
