@@ -111,7 +111,7 @@ deploymentOutput=$(az group deployment create -g $rgName --template-uri https://
 
 echo "Deployment completed..."
 
-#Assign the MSI ID to SQL Server
+#To Do:Assign the MSI ID to SQL Server
 #echo "Granting API App permissions in SQL Database..."
 #sqlcmd -S <Servername>.database.windows.net -U <username> -P <password> -Q "GRANT " -o SQLOutput.txt
 #Grep the SQLOutput for success
