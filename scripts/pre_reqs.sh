@@ -6,6 +6,7 @@ declare rgName
 declare useAADGroup
 declare upn
 declare paramString
+declare logAnalyticsSKU
 
 regions=$(az account list-locations --query "[].{displayname:displayname, shortname:name}"  --output tsv)
 
@@ -49,6 +50,12 @@ if [ $# -eq 0 ]; then
             else
                 useAADGroup=0
             fi
+        fi
+
+        if [ -z "$4" ]; then
+            logAnalyticsSKU="pergb2018"
+        else
+            logAnalyticsSKU=$4
         fi
 
 fi
@@ -97,7 +104,7 @@ if [ $useAADGroup -eq 1 ]; then
     #ToDo: Check if group exists, if so get the ObjectId rather than keep creating a new one...
     #aadGroupId=$(az ad group create --display-name "PaaS Blueprint SQL Administrators" --mail-nickname "paasblueprintsqladminss" | jq ".objectId" -r)
     aadGroupId=$(az ad group create --display-name "$groupName" --mail-nickname "$groupMail" | jq ".objectId" -r)
-    paramString="AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail useAADGroupForSQLAdmin=Yes"
+    paramString="AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail useAADGroupForSQLAdmin=Yes LogAnalyticsSKU=$logAnalyticsSKU"
     echo "Assigning logged in user to SQL Administrators Group"
     addUser=$(az ad group member add -g $aadGroupId --member-id $aadUserId)
 else
