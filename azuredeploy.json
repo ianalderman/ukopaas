@@ -48,6 +48,17 @@
         "description": "The Azure region the Logs Workspace will be deployed to"
       }
     },
+    "LogAnalyticsSKU": {
+      "type": "string",
+      "defaultValue": "pergb2018",
+      "allowedValues": [
+        "Free",
+        "pergb2018"
+      ],
+      "metadata": {
+        "description": "The pricing tier of the Log Analytics workspace.  New workspaces should be ok 'pergb2018', some subscritpions may require 'Free' please see http://aka.ms/PricingTierWarning"
+      }
+    },
     "transparentDataEncryption": {
         "type": "string",
         "allowedValues": [
@@ -800,7 +811,10 @@
       "[resourceId('microsoft.insights/components/', concat('ai-',parameters('baseResourceName'),'-CustomerSite'))]"
     ],
     "properties": {
-      "retention": "[parameters('LogsRetentionInDays')]"
+      "retention": "[parameters('LogsRetentionInDays')]",
+      "sku": {
+        "name": "[parameters('LogAnalyticsSKU')]"
+      }
     },
     "resources": [
       {
