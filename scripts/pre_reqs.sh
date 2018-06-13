@@ -8,6 +8,7 @@ declare upn
 declare paramString
 declare logAnalyticsSKU
 
+#List of regions used to validate offered region
 regions=$(az account list-locations --query "[].{displayname:displayname, shortname:name}"  --output tsv)
 
 if [ $# -eq 0 ]; then
@@ -53,7 +54,16 @@ if [ $# -eq 0 ]; then
         fi
 
         if [ -z "$4" ]; then
-            logAnalyticsSKU="pergb2018"
+            echo "Attempting to identify Log Analytics available SKU...."
+            token=$(az account get-access-token | jq ".accessToken" -r)
+            subscriptionId=$(az account show | jq ".id" -r)
+            optedIn=$(curl -X POST -H "Authorization:Bearer $token" -H "Content-Length:0" https://management.azure.com/subscriptions/$subscriptionId/providers/microsoft.insights/listmigrationdate?api-version=2017-10-01 | jq ".optedInDate" -r)
+
+            if [[$optedIn == ""]]; then
+                logAnalyticsSKU="pergb2018"
+            else
+                logAnalyticsSKU="Free"
+            fi
         else
             logAnalyticsSKU=$4
         fi
@@ -65,6 +75,8 @@ if [[ $regions != *"$regionToDeployTo"* ]] || [[ ${#regionToDeployTo} -lt 6 ]]; 
     echo "Unknown Region, exiting script"
     exit 1
 fi
+
+
 
 #Create deployment resource groups
 echo "Creating resource group"
