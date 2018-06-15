@@ -112,11 +112,15 @@
       "defaultValue": "5"
     },
     "AlertSendToServiceOwners": {
-      "type": "bool",
+      "type": "string",
       "metadata": {
         "description": "Should the alerts be sent to the service owners?"
       },
-      "defaultValue": false  
+      "defaultValue": "Disabled"  ,
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ]
     },
     "AlertSendToEmailAddress": {
       "type": "string",
@@ -259,8 +263,8 @@
           "properties": {
               "state": "Enabled",
               "disabledAlerts": "",
-              "emailAddresses": "[parameters('AlertSendToEmailAddress')]",
-              "emailAccountAdmins": "Enabled",
+              "emailAddresses": "[if(equals(parameters('AlertSendToServiceOwners'),'Disabled'),json('null'),parameters('AlertSendToEmailAddress'))]",
+              "emailAccountAdmins": "[parameters('AlertSendToServiceOwners')]",
               "storageEndpoint": "[variables('storageEndpoint')]",
               "storageAccountAccessKey": "[listKeys(parameters('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
               "retentionDays": "[parameters('AuditRetentionPeriodInDays')]"
