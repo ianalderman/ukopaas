@@ -163,7 +163,7 @@
     "azureSQLTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
     "azureKeyVaultTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
     "logAnalyticsTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
-    "storageAccountBaseName": "[uniqueString(subscription().subscriptionId)]"
+    "storageAccountBaseName": "[uniqueString(resourceGroup().id)]"
   },
   "resources": [{
       "apiVersion": "2017-05-10",
@@ -233,7 +233,7 @@
         },
         "parameters": {
           "appName": {
-            "value": "Customer"
+            "value": "[concat(parameters('baseResourceName'),'-Customer')]"
           },
           "appServiceKind": {
             "value": "app"
@@ -263,7 +263,7 @@
         },
         "parameters": {
           "appName": {
-            "value": "Operator"
+            "value": "[concat(parameters('baseResourceName'),'-Operator')]"
           },
           "appServiceKind": {
             "value": "app"
@@ -293,7 +293,7 @@
         },
         "parameters": {
           "appName": {
-            "value": "API"
+            "value": "[concat(parameters('baseResourceName'),'-API')]"
           },
           "appServiceKind": {
             "value": "api"
@@ -315,6 +315,9 @@
       "name": "deployKeyVaultForCustomerAssetsSecretsManagement",
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('keyVaultResourceGroup')]",
+      "dependsOn": [
+        "deployStorageAccountForCustomerAssets"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -348,7 +351,7 @@
               "name": "blobkey",
               "apiVersion": "2015-06-01",
               "properties": {
-                "value": "[listKeys(resourceId(contoso.resourceName(parameters('storageResourceGroup')),'Microsoft.Storage/storageAccounts', concat('diags',variables('storageAccountBaseName'))), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                "value": "123"
               }
             }]
           }
@@ -375,6 +378,15 @@
           },
           "sqlServerAdminPassword": {
             "value": "[parameters('sqlServerAdminPassword')]"
+          },
+          "AlertSendToEmailAddress": {
+            "value": "[parameters('AlertSendToEmailAddress')]"
+          },
+          "AADAdminLogin": {
+            "value": "[parameters('AADAdminLogin')]"
+          },
+          "AADAdminObjectId": {
+            "value": "[parameters('AADAdminObjectID')]"
           },
           "workspaceId": {
             "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
