@@ -133,8 +133,8 @@
                                 "name": "deployIPAddressRestrictions",
                                 "count": "[length(parameters('allowedIPAddresses'))]",
                                 "input": {
-                                    "ipAddress": "[parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')].ipAddress]",
-                                    "subnetMask": "[parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')].subnetMask]"
+                                    "ipAddress": "[if(empty(parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')]),json('null'),parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')].ipAddress)]",
+                                    "subnetMask": "[if(empty(parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')]), json('null'), parameters('allowedIPAddresses')[copyIndex('deployIPAddressRestrictions')].subnetMask)]"
                                 }
                             }
                         ]

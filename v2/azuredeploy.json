@@ -197,7 +197,7 @@
         },
         "parameters": {
           "storageAccountName": {
-            "value": "[concat(variables('storageAccountBaseName'),'-diags')]"
+            "value": "[concat('diags',variables('storageAccountBaseName'))]"
           }
         }
       }
@@ -215,7 +215,7 @@
         },
         "parameters": {
           "storageAccountName": {
-            "value": "[concat(variables('storageAccountBaseName'),'-CustomerAssets')]"
+            "value": "[concat('cust',variables('storageAccountBaseName'))]"
           }
         }
       }
@@ -348,7 +348,7 @@
               "name": "blobkey",
               "apiVersion": "2015-06-01",
               "properties": {
-                "value": "[listKeys(resourceId(contoso.resourceName(parameters('storageResourceGroup')),'Microsoft.Storage/storageAccounts', concat(variables('storageAccountBaseName'), '-diags')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                "value": "[listKeys(resourceId(contoso.resourceName(parameters('storageResourceGroup')),'Microsoft.Storage/storageAccounts', concat('diags',variables('storageAccountBaseName'))), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
               }
             }]
           }
