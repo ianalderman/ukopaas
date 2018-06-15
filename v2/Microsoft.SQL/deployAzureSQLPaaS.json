@@ -112,15 +112,11 @@
       "defaultValue": "5"
     },
     "AlertSendToServiceOwners": {
-      "type": "string",
+      "type": "bool",
       "metadata": {
         "description": "Should the alerts be sent to the service owners?"
       },
-      "defaultValue": "Enabled"  ,
-      "allowedValues": [
-        "Enabled",
-        "Disabled"
-      ]
+      "defaultValue": true 
     },
     "AlertSendToEmailAddress": {
       "type": "string",
@@ -327,7 +323,6 @@
           },
           "actions": [
             {
-              "$type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.RuleEmailAction, Microsoft.WindowsAzure.Management.Mon.Client",
               "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
               "sendToServiceOwners": "[parameters('AlertSendToServiceOwners')]",
               "customEmails": "[if(empty(variables('customEmails')),json('null'),variables('customEmails'))]"
