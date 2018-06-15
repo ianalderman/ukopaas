@@ -15,28 +15,28 @@
       "metadata": {
         "description": "Name of the Resource Group to deploy the App Services to, defaults to the current resource group for the deployment"
       },
-      "defaultValue": "[resourceGroup().id]"
+      "defaultValue": "[resourceGroup().name]"
     },
     "keyVaultResourceGroup": {
       "type": "string",
       "metadata": {
         "description": "Name of the Resource Group to deploy the Key Vaults to, defaults to the current resource group for the deployment"
       },
-      "defaultValue": "[resourceGroup().id]"
+      "defaultValue": "[resourceGroup().name]"
     },
     "storageResourceGroup": {
       "type": "string",
       "metadata": {
         "description": "Name of the Resource Group to deploy the storage accounts & log analytics workspaces for diagnostics and Customer assets defaults to the current resource group for the deployment"
       },
-      "defaultValue": "[resourceGroup().id]"
+      "defaultValue": "[resourceGroup().name]"
     },
     "azureSQLResourceGroup": {
       "type": "string",
       "metadata": {
         "description": "Name of the Resource Group to deploy the SQL Server to, defaults to the current resource group for the deployment"
       },
-      "defaultValue": "[resourceGroup().id]"
+      "defaultValue": "[resourceGroup().name]"
     },
     "LogsWorkspaceLocation": {
       "type": "string",
@@ -69,29 +69,29 @@
     },
     "databaseServerName": {
       "type": "string",
-        "metadata": {
-            "description": "The name of the database server to provision"
-        },
-        "defaultValue": "[concat('svr-', uniqueString(resourceGroup().id))]"
+      "metadata": {
+        "description": "The name of the database server to provision"
+      },
+      "defaultValue": "[concat('svr-', uniqueString(resourceGroup().id))]"
     },
     "sqlServerAdminPassword": {
-        "type": "securestring",
-        "metadata": {
-            "description": "The password for administering the SQL Server"
-        },
-        "defaultValue": "[concat('L1',uniqueString(subscription().id),'#')]"
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for administering the SQL Server"
+      },
+      "defaultValue": "[concat('L1',uniqueString(subscription().id),'#')]"
     },
-      "AADAdminLogin": {
-        "type": "string",
-        "metadata": {
-            "description": "The Login ID for the Azure Active Directory user or group to be a server admin"
-        }
+    "AADAdminLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "The Login ID for the Azure Active Directory user or group to be a server admin"
+      }
     },
-      "AADAdminObjectID": {
-        "type": "string",
-        "metadata": {
-            "description": "The Object ID for the Azure Active Directory user or group to be a server admin"
-        }
+    "AADAdminObjectID": {
+      "type": "string",
+      "metadata": {
+        "description": "The Object ID for the Azure Active Directory user or group to be a server admin"
+      }
     },
     "AlertWindowSizeInMinutes": {
       "type": "string",
@@ -105,14 +105,14 @@
       "metadata": {
         "description": "Should the alerts be sent to the service owners?"
       },
-      "defaultValue": true  
+      "defaultValue": true
     },
     "AlertSendToEmailAddress": {
       "type": "string",
       "metadata": {
         "description": "Custom Email Address for alerts"
       },
-      "defaultValue": null 
+      "defaultValue": null
     },
     "deployWebAppBlobLogs": {
       "type": "string",
@@ -137,16 +137,35 @@
       "defaultValue": "No"
     }
   },
+  "functions": [
+    {
+      "namespace": "contoso",
+      "members": {
+        "resourceName": {
+          "parameters": [
+            {
+              "name": "resourceId",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[last(split(parameters('resourceId'),'/'))]"
+          }
+        }
+      }
+    }
+  ],
   "variables": {
-    "templateBaseUrl": "[deployment().properties.templateLink.uri]",
+    "templateBaseUrl": "https://raw.githubusercontent.com/ianalderman/ukopaas/master/v2/",
     "appServiceTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Web/deployAppService.json')]",
     "storageAccountTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Storage/deployStorageAccount.json')]",
     "azureSQLTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
     "azureKeyVaultTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
-    "logAnalyticsTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]"
+    "logAnalyticsTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
+    "storageAccountBaseName": "[uniqueString(subscription().subscriptionId)]"
   },
-  "resources": [
-    {
+  "resources": [{
       "apiVersion": "2017-05-10",
       "name": "deployLogAnalyticsWorkspace",
       "type": "Microsoft.Resources/deployments",
@@ -154,8 +173,9 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri":"[variables('logAnalyticsTemplateUrl')]",
-           "contentVersion":"1.0.0.0"
+          "uri": "[variables('logAnalyticsTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+
         },
         "parameters": {
           "logAnalyticsSKU": {
@@ -170,16 +190,16 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('storageResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('storageAccountTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
-          },
-          "parameters": {
-              "storageAccountName": {
-                  "value": "[concat(uniqueString(resourceGroup().id),'-diags')]"
-                }
-            }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('storageAccountTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "storageAccountName": {
+            "value": "[concat(variables('storageAccountBaseName'),'-diags')]"
+          }
+        }
       }
     },
     {
@@ -188,16 +208,16 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('storageResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('storageAccountTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
-          },
-          "parameters": {
-              "storageAccountName": {
-                  "value": "[concat(uniqueString(resourceGroup().id),'-CustomerAssets')]"
-                }
-            }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('storageAccountTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "storageAccountName": {
+            "value": "[concat(variables('storageAccountBaseName'),'-CustomerAssets')]"
+          }
+        }
       }
     },
     {
@@ -206,31 +226,28 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('appServiceResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('appServiceTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
-           },
-           "parameters": {
-              "appName": {
-                  "value": "Customer"
-                },
-                "appServiceKind": {
-                  "value": "app"
-                },
-                "allowedIPAddresses": {
-                  "value": [
-                    {
-                    }
-                  ]
-                },
-                "workspaceId": {
-                  "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
-                },
-                "storageAccountId": {
-                  "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
-                }
-           }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('appServiceTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appName": {
+            "value": "Customer"
+          },
+          "appServiceKind": {
+            "value": "app"
+          },
+          "allowedIPAddresses": {
+            "value": [{}]
+          },
+          "workspaceId": {
+            "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
+          },
+          "storageAccountId": {
+            "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
+          }
+        }
       }
     },
     {
@@ -239,31 +256,28 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('appServiceResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('appServiceTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('appServiceTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appName": {
+            "value": "Operator"
           },
-          "parameters": {
-              "appName": {
-                  "value": "Operator"
-                },
-                "appServiceKind": {
-                  "value": "app"
-                },
-                "allowedIPAddresses": {
-                  "value": [
-                    {
-                    }
-                  ]
-                },
-                "workspaceId": {
-                  "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
-                },
-                "storageAccountId": {
-                  "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
-                }
+          "appServiceKind": {
+            "value": "app"
+          },
+          "allowedIPAddresses": {
+            "value": [{}]
+          },
+          "workspaceId": {
+            "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
+          },
+          "storageAccountId": {
+            "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
           }
+        }
       }
     },
     {
@@ -272,31 +286,28 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('appServiceResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('appServiceTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('appServiceTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appName": {
+            "value": "API"
           },
-          "parameters": {
-              "appName": {
-                  "value": "API"
-                },
-                "appServiceKind": {
-                  "value": "api"
-                },
-                "allowedIPAddresses": {
-                  "value": [
-                    {
-                    }
-                  ]
-                },
-                "workspaceId": {
-                  "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
-                },
-                "storageAccountId": {
-                  "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
-                }
+          "appServiceKind": {
+            "value": "api"
+          },
+          "allowedIPAddresses": {
+            "value": [{}]
+          },
+          "workspaceId": {
+            "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
+          },
+          "storageAccountId": {
+            "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
           }
+        }
       }
     },
     {
@@ -307,8 +318,8 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri":"[variables('azureKeyVaultTemplateUrl')]",
-           "contentVersion":"1.0.0.0"
+          "uri": "[variables('azureKeyVaultTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "storageAccountId": {
@@ -316,9 +327,9 @@
           },
           "workspaceId": {
             "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
-          },          
-          "accessPolicies": [
-            {
+          },
+          "accessPolicies": {
+            "value": [{
               "tenantId": "[reference('deployCustomerSite').outputs.appServiceMSITenantId.value]",
               "objectId": "[reference('deployCustomerSite').outputs.appServiceMSIObjectId.value]",
               "permissions": {
@@ -329,18 +340,18 @@
                   "get"
                 ]
               }
-            }
-          ],
-          "secretsAndKeys": [
-            {
+            }]
+          },
+          "secretsAndKeys": {
+            "value": [{
               "type": "secrets",
               "name": "blobkey",
               "apiVersion": "2015-06-01",
               "properties": {
-                "value": "[listKeys(reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value, providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                "value": "[listKeys(resourceId(contoso.resourceName(parameters('storageResourceGroup')),'Microsoft.Storage/storageAccounts', concat(variables('storageAccountBaseName'), '-diags')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
               }
-            }
-          ]
+            }]
+          }
         }
       }
     },
@@ -350,28 +361,25 @@
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('azureSQLResourceGroup')]",
       "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri":"[variables('azureSQLTemplateUrl')]",
-              "contentVersion":"1.0.0.0"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('azureSQLTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "storageAccountId": {
+            "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
           },
-          "parameters": {
-            "storageAccountId": {
-              "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
-            },
-            "keyVaultId": {
-              "value": "[reference('deployKeyVaultForSecretsManagement').outputs.keyVaultId.value]"
-            },
-            "databaseServerName": {
-              "value": "[parameters('databaseServerName')]"
-            },
-            "sqlServerAdminPassword": {
-              "value": "[parameters('sqlServerAdminPassword')]"
-            },
-            "workspaceId": {
-              "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
-            }
+          "databaseServerName": {
+            "value": "[parameters('databaseServerName')]"
+          },
+          "sqlServerAdminPassword": {
+            "value": "[parameters('sqlServerAdminPassword')]"
+          },
+          "workspaceId": {
+            "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
           }
+        }
       }
     },
     {
@@ -382,8 +390,8 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri":"[variables('azureKeyVaultTemplateUrl')]",
-           "contentVersion":"1.0.0.0"
+          "uri": "[variables('azureKeyVaultTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "storageAccountId": {
@@ -392,40 +400,41 @@
           "workspaceId": {
             "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
           },
-          "accessPolicies": [
-            {
-              "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
-              "objectId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSIObjectId.value]",
-              "permissions": {
-                "keys": [
-                  "get",
-                  "wrapKey",
-                  "unwrapkey"
-                ]
+          "accessPolicies": {
+            "value:": [{
+                "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
+                "objectId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSIObjectId.value]",
+                "permissions": {
+                  "keys": [
+                    "get",
+                    "wrapKey",
+                    "unwrapkey"
+                  ]
+                }
+              },
+              {
+                "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
+                "objectId": "[parameters('AADAdminObjectID')]",
+                "permissions": {
+                  "secrets": [
+                    "get"
+                  ]
+                }
               }
-            },
-            {
-              "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
-              "objectId": "[parameters('AADAdminObjectID')]",
-              "permissions": {
-                "secrets": [
-                  "get"
-                ]
-              }
-            }
-          ],
-          "secretsAndKeys": [
-            {
+            ]
+          },
+          "secretsAndKeys": {
+            "value": [{
               "type": "secrets",
               "name": "[concat(parameters('databaseServerName'),'-admin')]",
               "apiVersion": "2015-06-01",
               "properties": {
                 "value": "[parameters('sqlServerAdminPassword')]"
               }
-            }
-          ]
+            }]
+          }
         }
       }
-    }  
+    }
   ]
 }
