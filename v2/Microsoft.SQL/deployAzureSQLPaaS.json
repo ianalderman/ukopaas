@@ -116,7 +116,7 @@
       "metadata": {
         "description": "Should the alerts be sent to the service owners?"
       },
-      "defaultValue": "Disabled"  ,
+      "defaultValue": "Enabled"  ,
       "allowedValues": [
         "Enabled",
         "Disabled"
@@ -263,7 +263,7 @@
           "properties": {
               "state": "Enabled",
               "disabledAlerts": "",
-              "emailAddresses": "[if(equals(parameters('AlertSendToServiceOwners'),'Disabled'),json('null'),parameters('AlertSendToEmailAddress'))]",
+              "emailAddresses": "[if(equals(parameters('AlertSendToEmailAddress'),'ignore'),json('null'),parameters('AlertSendToEmailAddress'))]",
               "emailAccountAdmins": "[parameters('AlertSendToServiceOwners')]",
               "storageEndpoint": "[variables('storageEndpoint')]",
               "storageAccountAccessKey": "[listKeys(parameters('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
