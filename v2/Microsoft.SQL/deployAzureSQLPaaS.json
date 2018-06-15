@@ -260,7 +260,7 @@
               "state": "Enabled",
               "disabledAlerts": "",
               "emailAddresses": "[if(equals(parameters('AlertSendToEmailAddress'),'ignore'),json('null'),parameters('AlertSendToEmailAddress'))]",
-              "emailAccountAdmins": "[parameters('AlertSendToServiceOwners')]",
+              "emailAccountAdmins": "[if(equals(string(parameters('AlertSendToServiceOwners')),'true'),'Enabled','Disabled')]",
               "storageEndpoint": "[variables('storageEndpoint')]",
               "storageAccountAccessKey": "[listKeys(parameters('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
               "retentionDays": "[parameters('AuditRetentionPeriodInDays')]"
