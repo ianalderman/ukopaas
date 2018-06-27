@@ -2,11 +2,14 @@
 #!/bin/bash
 
 declare regionToDeployTo
+declare baseName
+declare rgBaseName
 declare rgName
 declare useAADGroup
 declare upn
 declare paramString
 declare logAnalyticsSKU
+declare aadUserId
 
 #List of regions used to validate offered region
 regions=$(az account list-locations --query "[].{displayname:displayname, shortname:name}"  --output tsv)
@@ -38,36 +41,44 @@ if [ $# -eq 0 ]; then
         fi
 
         if [ -z "$2" ]; then
-            rgName="rg-paas-blueprint"
+            baseName=$(head -n 1 /dev/urandom | tr -dc 'a-z0-9' | fold -w 6 | head -n 1)
         else
-            rgName=$2
+            baseName=$2
         fi
 
         if [ -z "$3" ]; then
-            useAADGroup=1
+            rgBaseName="rg-paas-blueprint"
         else
-            if [ "$3" == "Yes" ]; then
+            rgBaseName=$3
+        fi
+
+        if [ -z "$4" ]; then
+            useAADGroup=0
+        else
+            if [ "$4" == "Yes" ]; then
                 useAADGroup=1
             else
                 useAADGroup=0
             fi
         fi
 
-        if [ -z "$4" ]; then
+        if [ -z "$5" ]; then
             echo "Attempting to identify Log Analytics available SKU...."
             token=$(az account get-access-token | jq ".accessToken" -r)
             subscriptionId=$(az account show | jq ".id" -r)
             optedIn=$(curl -X POST -H "Authorization:Bearer $token" -H "Content-Length:0" https://management.azure.com/subscriptions/$subscriptionId/providers/microsoft.insights/listmigrationdate?api-version=2017-10-01 | jq ".optedInDate" -r)
+            echo "detected optedIn Date:$optedIn"
 
-            if [[$optedIn == ""]]; then
+            if [[ $optedIn == "" ]]; then
                 logAnalyticsSKU="pergb2018"
+                echo "Log Analytics SKU set to pergb2018"
             else
                 logAnalyticsSKU="Free"
+                echo "Log Analytics SKU set to Free"
             fi
         else
-            logAnalyticsSKU=$4
+            logAnalyticsSKU=$5
         fi
-
 fi
 LEN=$(echo ${#regionToDeployTo})
 
@@ -79,11 +90,12 @@ fi
 
 
 #Create deployment resource groups
-echo "Creating resource group"
-
-
-resourceGroup=$(az group create -l $regionToDeployTo -n $rgName)
-
+echo "Creating resource groups"
+baseResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName)
+appServiceResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName-appService)
+keyVaultResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName-keyVault)
+storageResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName-storage)
+azureSQLResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName-azureSQL)
 
 #ToDo: Check deployment succedded and extract details from output
 #Assign current user to the SQL Administrators group (we do this after deployment to give the group a chance to be fully available...)
@@ -105,6 +117,7 @@ if [[ $aadUserMail == *"live.com#"* ]]; then
 else   
     upn=$(echo $aadUserMail)
 fi
+
 aadUserId=$(az ad user show --upn-or-object-id $upn | jq ".objectId" -r)
 
 if [ $useAADGroup -eq 1 ]; then
@@ -116,17 +129,17 @@ if [ $useAADGroup -eq 1 ]; then
     #ToDo: Check if group exists, if so get the ObjectId rather than keep creating a new one...
     #aadGroupId=$(az ad group create --display-name "PaaS Blueprint SQL Administrators" --mail-nickname "paasblueprintsqladminss" | jq ".objectId" -r)
     aadGroupId=$(az ad group create --display-name "$groupName" --mail-nickname "$groupMail" | jq ".objectId" -r)
-    paramString="AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail useAADGroupForSQLAdmin=Yes LogAnalyticsSKU=$logAnalyticsSKU"
+    paramString="appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail LogAnalyticsSKU=$logAnalyticsSKU"
     echo "Assigning logged in user to SQL Administrators Group"
     addUser=$(az ad group member add -g $aadGroupId --member-id $aadUserId)
 else
-    paramString="AADAdminLogin=$upn AADAdminObjectID=$aadUserId AlertSendToEmailAddress=$aadUserMail useAADGroupForSQLAdmin=Yes"
+    paramString="appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL AADAdminLogin=$upn AADAdminObjectID=$aadUserId AlertSendToEmailAddress=$aadUserMail useAADGroupForSQLAdmin=Yes LogAnalyticsSKU=$logAnalyticsSKU"
 fi
 
 #Run the deployment
 echo "Starting deployment..."
 
-deploymentOutput=$(az group deployment create -g $rgName --template-uri https://raw.githubusercontent.com/ianalderman/ukopaas/master/azuredeploy.json --parameters $paramString)
+deploymentOutput=$(az group deployment create -g $rgBaseName --template-uri https://raw.githubusercontent.com/ianalderman/ukopaas/master/v2/azuredeploy.json --parameters $paramString)
 
 echo "Deployment completed..."
 

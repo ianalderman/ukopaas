@@ -15,14 +15,14 @@
             "metadata": {
                 "description": "Resource Id for the storage account to store diagnostics"
             },
-            "defaultValue": "[json('null')]"
+            "defaultValue": null
         },
         "workspaceId": {
             "type": "string",
             "metadata": {
                 "description": "Resource Id for the Log Analytics workspace to store diagnostics"
             },
-            "defaultValue": "[json('null')]"
+            "defaultValue": null
         },
         "LogsRetentionInDays": {
             "type": "int",
@@ -44,6 +44,10 @@
                 "description": "Array of Secrets & Keys to apply to the vault"
             },
             "defaultValue": []
+        },
+        "doLoop": {
+            "type": "string",
+            "defaultValue": "No"
         }
     },
     "variables": {
@@ -64,6 +68,7 @@
                 },
                 "enablePurgeProtection": true,
                 "enableSoftDelete": true,
+                
                 "copy": [
                             {
                                 "name": "accessPolicies",
@@ -75,9 +80,11 @@
                                 }
                             }
                         ]
+                    
                 ,
                 "resources": [
                     {   
+                        "condition": "[not(empty(parameters('secretsAndKeys')))]",     
                         "copy": [
                             {
                                 "name": "deployKeyVaultChildResources",
@@ -92,6 +99,7 @@
                         ]
                     },
                     {  
+                        "condition": "[not(equals(parameters('storageAccountId'),'ignore'))]",
                         "type":"Microsoft.KeyVault/vaults/providers/diagnosticsettings",
                         "name":"[concat(variables('vaultName'), '/Microsoft.Insights/service')]",
                         "apiVersion":"2016-09-01",

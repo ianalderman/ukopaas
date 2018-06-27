@@ -421,6 +421,10 @@
       "azureSQLPaaSMSIObjectId": {
         "type":"string",
         "value": "[reference(concat('Microsoft.Sql/servers/', parameters('databaseServerName')), '2015-05-01-preview', 'Full').identity.principalId]"
+      },
+      "azureSQLFQDN": {
+        "type":"string",
+        "value": "[reference(concat('Microsoft.Sql/servers/', parameters('databaseServerName'))).fullyQualifiedDomainName]"
       }
     }
   }
