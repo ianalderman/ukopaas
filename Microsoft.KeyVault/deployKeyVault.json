@@ -71,7 +71,6 @@
                 },
                 "enablePurgeProtection": true,
                 "enableSoftDelete": true,
-                "accessPolicies": "[parameters('accessPolicies')]",
                 "resources": [
                     {   
                         "copy": [
@@ -112,7 +111,18 @@
                       }        
                 ]
             } 
-        }        
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "name": "[concat(variables('vaultName'),'/add')]",
+            "dependsOn": [
+                "[variables('vaultName')]"
+            ],
+            "apiVersion": "2016-10-01",
+            "properties": {
+                "accessPolicies": "[parameters('accessPolicies')]"
+            }
+        }       
     ],
     "outputs": {
         "keyVaultId": {
