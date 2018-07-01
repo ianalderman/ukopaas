@@ -18,25 +18,30 @@ There are two methods that deployment users may use to deploy this reference arc
 - An Azure Subscription
 - Contributor or Owner rights to the Subscription
 
+> If you would like to configure an Azure Active Directory Group as part of the scripted deployment you will need to have suitable permissions within your Azure Active Directory.
+
 Other Azure architectural best practices and guidance can be found in [Azure Reference Architectures](https://docs.microsoft.com/azure/guidance/guidance-architecture). Supporting Microsoft Visio templates are available from the [Microsoft download center](http://download.microsoft.com/download/1/5/6/1569703C-0A82-4A9C-8334-F13D0DF2F472/RAs.vsdx) with the corresponding ARM Templates found at [Azure Reference Architectures ARM Templates](https://github.com/mspnp/reference-architectures).
 
-## Method 1: Azure CLI Deployment Process
+## Method 1: Azure CLI 2 (Express version)
 To deploy this solution through the Azure CLI, you will need the latest version of the [Azure CLI 2](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to use the BASH script that deploys the solution. Alternatively you can use the [Azure Cloud Shell](https://shell.azure.com/). To deploy the reference architecture, follow these steps:
-1. Download or clone the solution folder from GitHub to your local machine.
-2. Open a PowerShell Window and navigate to the \compliance\uk-official\three-tier-web-with-adds\ folder.
-3. Run the following command:  `.\Deploy-ReferenceArchitecture.ps1 <subscription id> <location> <mode>`
-4. Replace `<subscription id>` with your Azure subscription ID.
-5. For `<location>`, specify an Azure region, such as `UKSouth` or `UKWest`.
-6. The <mode> parameter controls the granularity of the deployment. The default value is DeployAll if no <mode> is selected. The <mode> can be one of the following values:
-- `Infrastructure`: deploys the networking infrastructure
-- `ADDS`: deploys the VMs acting as Active Directory DS servers, deploys Active Directory to these VMs, and deploys the domain in Azure.
-- `Operational`: deploys the web, business and data tier VMs and load balancers
-- `DeployAll`: deploys all the preceding deployments.
+1. Download the BASH script pre_reqs.sh, for example with the command ```wget https://raw.githubusercontent.com/ianalderman/ukopaas/master/scripts/pre_reqs.sh```
+2. Execute the script by using the command ```bash pre_reqs.sh```
+3. If you do not know the short name of the region you wish to deploy to enter ```Y``` else enter ```N```
+4. Enter the short name of the region you wish to deploy to e.g. ```northeurope```
 
 > Note: The parameter files include hard-coded passwords in various places. It is strongly recommended that you change these values.
 > If the parameters files are not updated, the default values will be used which may not be compatible with your on-premises environment.
 
+### Method 1a: Azure CLI 2 (Configuring the deployment via script arguments)
+The ```pre_reqs.sh``` script supports a number of command line arguments that allow you to customise the deployment.  These are:
 
+1. Region - should be a valid shortname for a region
+2. Base Resource Name (used for uniqueness) - should be less than 15 chars and all lower case
+3. Base Resource Group Name
+4. SQL Admin configuration - valid options are ```Group```, ```User```, ```None```
+5. Log Analytics SKU - valid options are ```Free``` or ```pergb2018```
+
+>As the arguments are positional, rather than named you need to add them in the correct order.  If you specify arguments you don't have to specify all of them, for example you could provide just the first argument, or arguments 1,2 & 3.  You cannot supply them out of order.
 
 ## Method 2: Azure Portal Deployment Process
 

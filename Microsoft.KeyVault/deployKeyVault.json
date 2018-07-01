@@ -64,18 +64,7 @@
                 },
                 "enablePurgeProtection": true,
                 "enableSoftDelete": true,
-                "copy": [
-                            {
-                                "name": "accessPolicies",
-                                "count": "[length(parameters('accessPolicies'))]",
-                                "input": {
-                                    "tenantId": "[parameters('accessPolicies')[copyIndex('accessPolicies')].tenantId]",
-                                    "objectId": "[parameters('accessPolicies')[copyIndex('accessPolicies')].objectId]",
-                                    "permissions": "[parameters('accessPolicies')[copyIndex('accessPolicies')].permissions]"
-                                }
-                            }
-                        ]
-                ,
+                "accessPolicies": "[parameters('accessPolicies')]",
                 "resources": [
                     {   
                         "copy": [
