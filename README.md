@@ -43,6 +43,8 @@ The ```pre_reqs.sh``` script supports a number of command line arguments that al
 
 >As the arguments are positional, rather than named you need to add them in the correct order.  If you specify arguments you don't have to specify all of them, for example you could provide just the first argument, or arguments 1,2 & 3.  You cannot supply them out of order.
 
+```bash pre_reqs.sh northeurope paasbp rg-ne-paas-blueprint```
+
 ## Method 2: Azure Portal Deployment Process
 
 A deployment for this reference architecture is available on
