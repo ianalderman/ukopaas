@@ -427,27 +427,29 @@
             "value": "[reference('deployLogAnalyticsWorkspace').outputs.workspaceId.value]"
           },
           "accessPolicies": {
-            "value:": [{
-                "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
-                "objectId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSIObjectId.value]",
-                "permissions": {
-                  "keys": [
-                    "get",
-                    "wrapKey",
-                    "unwrapKey"
-                  ]
-                }
-              },
-              {
-                "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
-                "objectId": "[parameters('AADAdminObjectID')]",
-                "permissions": {
-                  "secrets": [
-                    "get"
-                  ]
-                }
+            "value": [{
+              "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
+              "objectId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSIObjectId.value]",
+              "permissions": {
+                "keys": [
+                  "get",
+                  "wrapKey",
+                  "unwrapKey"
+                ],
+                "secrets": []
               }
-            ]
+            },
+            {
+              "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
+              "objectId": "[parameters('AADAdminObjectID')]",
+              "permissions": {
+                "keys": [],
+                "secrets": [
+                  "get"
+                ]
+              }
+            }
+          ]
           },
           "secretsAndKeys": {
             "value": [{
