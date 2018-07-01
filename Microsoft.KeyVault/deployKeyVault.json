@@ -44,11 +44,18 @@
                 "description": "Array of Secrets & Keys to apply to the vault"
             },
             "defaultValue": []
+        },
+        "vaultNameSuffix": {
+            "type": "string",
+            "metadata": {
+                "description": "Suffix to apply to the name of the Key Vault"
+            },
+            "defaultValue": "vault"
         }
     },
     "variables": {
         "tenantId": "[subscription().tenantId]",
-        "vaultName": "[concat('kv',parameters('baseResourceName'))]"
+        "vaultName": "[concat('kv',parameters('baseResourceName'), parameters('vaultNameSuffix'))]"
     },
     "resources": [
         {

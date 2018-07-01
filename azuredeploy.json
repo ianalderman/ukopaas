@@ -327,6 +327,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "vaultNameSuffix": {
+            "value": "cust"
+          },
           "storageAccountId": {
             "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
           },
@@ -411,6 +414,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "vaultNameSuffix": {
+            "value": "sql"
+          },
           "storageAccountId": {
             "value": "[reference('deployStorageAccountForDiagnositics').outputs.storageAccountId.value]"
           },
