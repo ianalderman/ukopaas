@@ -407,6 +407,9 @@
       "name": "deployKeyVaultForSQLServerSecretsManagement",
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('keyVaultResourceGroup')]",
+      "dependsOn": [
+        "deployAzureSQLDatabase"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -431,7 +434,7 @@
                   "keys": [
                     "get",
                     "wrapKey",
-                    "unwrapkey"
+                    "unwrapKey"
                   ]
                 }
               },

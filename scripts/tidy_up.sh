@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "**** WARNING THIS WILL DELETE THE RESOURCE GROUPS CREATED FOR THE Azure PaaS Blueprint, ALL Resources will be lost...  ****"
+echo "**** You should manually grant yourself purge permissions and delete / purge the keyvaults as they have soft delete on... *****"
 echo -n "Please enter the base resource group name:"
 read baseResourceGroupName
 
