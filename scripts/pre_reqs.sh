@@ -24,7 +24,7 @@ if [ $# -eq 0 ]; then
 
     echo -n "Please enter the region you wish to deploy to (using the shortname):"
     read regionToDeployTo
-    
+
     #Configure defaults
     rgBaseName="rg-paas-blueprint"
     useAADGroup=0
@@ -154,7 +154,7 @@ fi
 #Run the deployment
 echo "Starting deployment..."
 
-deploymentOutput=$(az group deployment create -g $rgBaseName --template-uri https://raw.githubusercontent.com/ianalderman/ukopaas/master/v2/azuredeploy.json --parameters $paramString)
+deploymentOutput=$(az group deployment create -g $rgBaseName --template-uri https://raw.githubusercontent.com/ianalderman/ukopaas/master/azuredeploy.json --parameters $paramString)
 
 echo "Deployment completed..."
 
