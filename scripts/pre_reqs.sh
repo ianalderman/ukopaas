@@ -144,11 +144,11 @@ if [ $useAADGroup == "Group" ]; then
     groupName="PaaSBlueprintSQLAdministrators"
     
     aadGroupId=$(az ad group create --display-name "$groupName" --mail-nickname "$groupMail" | jq ".objectId" -r)
-    paramString="baseResrouceName=$baseName appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL useAADForSQLAdmin=$useAADForSQLAdmin AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail LogAnalyticsSKU=$logAnalyticsSKU"
+    paramString="baseResourceName=$baseName appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL useAADForSQLAdmin=$useAADForSQLAdmin AADAdminLogin=$groupName AADAdminObjectID=$aadGroupId AlertSendToEmailAddress=$aadUserMail LogAnalyticsSKU=$logAnalyticsSKU"
     echo "Assigning logged in user to SQL Administrators Group"
     addUser=$(az ad group member add -g $aadGroupId --member-id $aadUserId)
 else
-    paramString="baseResrouceName=$baseName appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL useAADForSQLAdmin=$useAADForSQLAdmin AADAdminLogin=$upn AADAdminObjectID=$aadUserId AlertSendToEmailAddress=$aadUserMail LogAnalyticsSKU=$logAnalyticsSKU"
+    paramString="baseResourceName=$baseName appServiceResourceGroup=$rgBaseName-appService keyVaultResourceGroup=$rgBaseName-keyVault storageResourceGroup=$rgBaseName-storage azureSQLResourceGroup=$rgBaseName-azureSQL useAADForSQLAdmin=$useAADForSQLAdmin AADAdminLogin=$upn AADAdminObjectID=$aadUserId AlertSendToEmailAddress=$aadUserMail LogAnalyticsSKU=$logAnalyticsSKU"
 fi
 
 #Run the deployment
