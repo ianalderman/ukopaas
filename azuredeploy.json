@@ -106,37 +106,12 @@
       },
       "defaultValue": "ignore"
     },
-    "AlertWindowSizeInMinutes": {
-      "type": "string",
-      "metadata": {
-        "description": "Window size used for alerts in minutes"
-      },
-      "defaultValue": "5"
-    },
-    "AlertSendToServiceOwners": {
-      "type": "bool",
-      "metadata": {
-        "description": "Should the alerts be sent to the service owners?"
-      },
-      "defaultValue": true
-    },
     "AlertSendToEmailAddress": {
       "type": "string",
       "metadata": {
         "description": "Custom Email Address for alerts"
       },
       "defaultValue": null
-    },
-    "deployWebAppBlobLogs": {
-      "type": "string",
-      "allowedValues": [
-        "Yes",
-        "No"
-      ],
-      "metadata": {
-        "description": "Should the Web App Logging be deployed?  Requires a storage account and SAS to be configured if Yes"
-      },
-      "defaultValue": "No"
     }
   },
   "functions": [

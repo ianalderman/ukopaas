@@ -1,15 +1,11 @@
-If you choose to use Bring Your Own Key (BYOK) you will need an existing key in a Key Vault.  For testing purposes you can use the commands below to create a suitable key:
-
-az keyvault key create --vault-name $vaultName --name $keyName --size 2048 --protection software
-az keyvault key show --vault-name $vaultName --name $keyName --query key.kid
-
-
 # Solution Overview
 For more information about this solution, see [Azure Security and Compliance Blueprint - UK-OFFICAL Three-Tier Web Applications using Platform as a Service](https://aka.ms/??).
 
+For deployment this blueprint uses linked ARM Templates.  There are a series of individual templates for each component that can be used to deploy each component indivudually, each of these templates have their own series of paramters and defaults.  In the root folder we have azuredeploy.json, this exposes a subset of parameters which has been derived to enable a simple deployment.  More advanced configurations can be achived via customising the templates.
+
 # Deploy the Solution
 
-These templates automatically deploy the Azure resources for a Windows based three-tier application with an Active Directory Domain architecture. **As this is a complex deployment that delivers the full infrastructure and environment, it can take up to two hours to deploy using the Azure Portal (Method 2).** Progress can be monitored from the Resource Group blade and Deployment output blade in the Azure Portal.
+As mentioned above these templates will deploy a 3 Tier architecture using Azure Platform as a Service components. Progress can be monitored from the Resource Group blade and Deployment output blade in the Azure Portal.
 
 There are two methods that deployment users may use to deploy this reference architecture. The first method uses a Bash script, whereas the second method utilises Azure Portal to deploy the reference architecture. These two methods are detailed in the sections below.
 
@@ -48,90 +44,40 @@ The ```pre_reqs.sh``` script supports a number of command line arguments that al
 ## Method 2: Azure Portal Deployment Process
 
 A deployment for this reference architecture is available on
-[GitHub](https://github.com/Azure/uk-official-three-tier-webapp). The templates can be cloned or downloaded if customisation of parameters is requried.
-The reference architecture is deployed in three stages. To deploy the architecture, follow the steps below for each deployment stage.
+[GitHub](https://github.com/ianalderman/ukopaas). The templates can be cloned or downloaded if customisation of parameters is requried.  To deploy the architecture, follow the steps below.
 
-For virtual machines, the parameter files include hard-coded administrator user names and passwords. These values can be changed in the parameter files if required. It is ***strongly recommended that you immediately change both on all the VMs***. Click on each VM in the Azure portal then click on **Reset password** in the **Support troubleshooting** blade.
-
-## Stage 1: Deploy Networking Infrastructure
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fuk-official-three-tier-webapp%2Fmaster%2Ftemplates%2Fvirtualnetwork.azuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/ianalderman/ukopaas/master/azuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
 
 1. Click on the **Deploy to Azure** button to begin the first stage of the deployment. The link takes you to the Azure Portal.
-2. Select **Create New** and enter a value such as `uk-official-networking-rg` in the **Resource group** textbox.
-3. Select a region such as `UKSouth` or `UKWest`, from the **Location** drop down box. All Resource Groups required for this architecture should be in the same Azure region (e.g., `UKSouth` or `UKWest`).
-4. Some parameters can be edited in the deployment page. For full compatibility with your on-premises environment, review the network parameters and customise your deployment, if necessary. If greater customisation is required, this can be done through cloning and editing the templates directly, or in situ by editing the templates by clicking 'Edit template'.
-5. Review the terms and conditions, then click the **I agree to the terms and conditions stated above** checkbox.
-6. Click on the **Purchase** button.
-7. Check the Azure Portal notifications for a message stating that this stage of deployment is complete, and proceed to the next deployment stage if completed.
-8. If for some reason your deployment fails, it is advisable to delete the resource group in its entirety to avoid incurring cost and orphan resources, fix the issue, and redeploy the resource groups and template.
+2. Select **Create New** and enter a value such as `rg-uks-paas-blueprint` in the **Resource group** textbox.
+3. Select a region such as `UKSouth` or `UKWest`, from the **Location** drop down box. **All Resource Groups required for this architecture should be in the same Azure region (e.g., `UKSouth` or `UKWest`).**
+4. Review the available parameters and enter the appropriate values for your deployment - note that you will need to replace the function based defaults such as ```[uniqueString(resourceGroup().id)]```
+5. Unlike the bash script in Method 1 the portal method will not create the additional resource groups, you can enter the resource group name from step 2 in **App Service Resource Group**, **Key Vault Resource Group**, **Storage Resource Group** and **Azure SQL Resource Group** - if you would like to deploy these resources to different resource groups you must create them seperately first.
+6. Review the terms and conditions, then click the **I agree to the terms and conditions stated above** checkbox.
+7. Click on the **Purchase** button.
+8. Check the Azure Portal notifications for a message stating that this stage of deployment is complete, and proceed to the next deployment stage if completed.
+9. If for some reason your deployment fails, it is advisable to delete the resource group in its entirety to avoid incurring cost and orphan resources, fix the issue, and redeploy the resource groups and template.
 
-## Stage 2: Deploy Active Directory Domain
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fuk-official-three-tier-webapp%2Fmaster%2Ftemplates%2Faads.azuredeploy.json" target="_blank">
-<img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
-</a>
+## Deployment parameters
+The table below provides additional information about deployment parameters.
 
-1. Click on the **Deploy to Azure** button to begin the second stage of the deployment. The link takes you to the Azure Portal.
-2. Select **Create New** and enter a value such as `uk-official-adds-rg` in the **Resource group** textbox.
-3. Select a region such as `UKSouth` or `UKWest`, from the **Location** drop down box. All Resource Groups required for this architecture should be in the same Azure region (e.g., `UKSouth` or `UKWest`).
-4. Some domain parameters will need to be edited in the deployment page, otherwise default example values will be used. For full compatibility with your on-premises environment, review the domain parameters and customise your deployment, if necessary. If greater customisation is required, this can be done through cloning and editing the templates directly, or in situ by editing the templates by clicking 'Edit template'.
-5. In the **Settings** textboxes, enter the networking resource group as entered when creating the networking infrastructure in deployment step 1.
-6. Enter the Domain settings and Admin credentials.
-7. Review the terms and conditions, then click the **I agree to the terms and conditions stated above** checkbox.
-8. Click on the **Purchase** button.
-9. Check Azure Portal notifications for a message stating that this stage of deployment is complete, and proceed to the next deployment stage if completed.
-10.	If for some reason your deployment fails, it is advisable to delete the resource group in its entirety to avoid incurring cost and orphan resources, fix the issue, and redeploy the resource groups and template.
-Check Azure portal notification for a message that the stage of deployment is complete and move on to the next if completed.
-
-> **Note**: The deployment includes default passwords if left unchanged. It is strongly recommended that you change these values.
-
-![alt text](images/create-official-aads-rg.JPG?raw=true "Create ADDS deployment")
-
-## Stage 3: Deploy Operational Workload Infrastructure
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fuk-official-three-tier-webapp%2Fmaster%2Ftemplates%2Fworkloads.azuredeploy.json" target="_blank">
-<img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
-</a>
-
-1. Click on the **Deploy to Azure** button to begin the third stage of the deployment. The link takes you to the Azure Portal.
-2. Select **Create New** and enter a value such as `uk-official-operational-rg` in the **Resource group** textbox.
-3. Select a region, such as UKSouth or UKWest, from the Location drop down box. All Resource Groups required for this architecture should be in the same Azure region (e.g., `UKSouth` or `UKWest`).
-4. Some parameters can be edited in the deployment page. If greater customisation is required, this can be done through cloning and editing the templates directly, or in situ by editing the templates by clicking 'Edit template'.
-5. In the **Settings** textboxes, enter the operational network resource group as entered when creating the networking infrastructure in deployment step 1.
-6. Enter the Virtual Machine Admin credentials.
-7. Review the terms and conditions, then click the **I agree to the terms and conditions stated above** checkbox.
-8. Click on the **Purchase** button.
-9. Check Azure Portal notifications for a message stating that this stage of deployment is complete.
-10. If for some reason your deployment fails, it is advisable to delete the resource group in its entirety to avoid incurring cost and orphan resources, fix the issue, and redeploy the resource groups and template.
-
-> **Note**: The deployment includes default passwords if left unchanged. It is strongly recommended that you change these values.
-
-![alt text](images/create-official-workload-rg.JPG?raw=true "Create ADDS deployment")
-
-## Deployment and Configuration Activities
-The table below provides additional information about deployment parameters, as well as other configuration steps related to the deployment activities.
-
-  Activity|Configuration|
-  ---|---
-  Create Management VNet Resource Groups|Enter resource group name during deployment.
-  Create Operational VNet Resource Groups|Enter resource group name during deployment.
-  Deploy  VNet network infrastructure|Enter resource group name during deployment.
-  Create VNet Peerings|None required.|
-  Deploy VPN Gateway|The template deploys an Azure environment with a public facing endpoint and an Azure Gateway to allow VPN setup between the Azure environment and your on-premises environment. To complete this VPN connection, you will need to provide the Local Gateway (your on-premises VPN public IP address) and complete the VPN connection set up locally. VPN Gateway requires local gateway configuration in the [/parameters/azure/ops-network.parameters.json](/parameters/azure/ops-network.parameters.json) template parameters file  or through the Azure Portal.
-  Deploying internet facing Application Gateway|For SSL termination, Application Gateway requires you SSL certificates to be uploaded. When provisioned, the Application Gateway will instantiate a public IP address and domain name to allow access to the web application.
-  Create Network Security Groups for VNETs|RDP access to the management VNet Jumpbox must be secured to a trusted IP address range. It is important to amend the "sourceAddressPrefix" parameter with your own trusted source IP address range in the [/parameters/azure/nsg-rules.parameters.json](/parameters/azure/nsg-rules.parameters.json) template parameters file. NSG configuration for the operational VNet can be found at [/parameters/azure/ops-vent-nsgs.json](/parameters/azure/ops-vent-nsgs.json).
-  Create ADDS resource group|Enter resource group name during deployment and edit the configuration fields if required.
-  Deploying ADDS servers|None required.
-  Updating DNS servers|None required.
-  Create ADDS domain|The provided templates create a demo 'treyresearch' domain. To ensure that the required Active Directory Domain is created with the desired domain name and administrative user the fields can be configured in the deployment screen or the [/parameters/azure/add-adds-domain-controller.parameters.json](/parameters/azure/add-adds-domain-controller.parameters.json) template parameters file must be edited with the required values.
-  Create ADDS domain controller|None required.
-  Create operational workload Resource Group|Enter resource group name during deployment.
-  Deploy operational VM tiers and load balancers   |None required.
-  Set up IIS web server role for web tier|None required.
-  Enable Windows Auth for VMs|None required.
-  Deploy Microsoft Anti-malware to VMs|None required.
-  Domain Join VMs|Domain joining the Virtual Machines is a post deployment step and must be **manually** completed.
+  Parameter|Default|Comment|
+  ---|---|---
+  baseResourceName|uniqueString(resourceGroup().id)|Base resource name to use for the deployed resources.  For example a value of "bpdemo" would provide a keyvault name kvbpdemo
+  appServiceResourceGroup|Deployment Resource Group|Name of the Resource Group to deploy the App Service Plan to
+  keyVaultResourceGroup|Deployment Resource Group|Name of the Resource Group to deploy the Key Vaults to
+  storageResourceGroup|Deployment Resource Group|Name of the Resource Group to deploy the storage and log analytics workspace to
+  azureSQLResourceGroup|Deployment Resource Group|Name of the Resource Group to deploy the Azure SQL instance to
+  LogsWorkspaceLocation|westeurope|Which Azure Region to deploy the Log Analytics workspace to
+  LogAnalyticsSKU|N/A|The SKU for provisioning the Log Analytics solution.  Note if your subscription has been moved to the "new" pricing only "pergb2018" will work, if not it is "Free"
+  databaseServerName|concat('svr-', uniqueString(resourceGroup().id))|Name of the database server to deploy
+  sqlServerAdminPassword|concat('L1',uniqueString(subscription().id),'#')|The default password for the SQL Admin user
+  useAADForSQLAdmin|No|Allowed Values "Yes", "No".  Sets whether Azure Active Directory will be used for SQL Server Administration
+  AADAdminLogin|ignore|The Login ID for the Azure Active Directory user or group to be Server Admin, e.g., sg_azure_sql_dbo@contoso.com
+  AADAdminObjectID|ignore|The underlying ObjectID (in the form of a GUID) representing the assigned Azure Active Directory user / group
+  AlertSendToEmailAddress|N/A|The email address to send alerts to
 
 # UK Government Private Network Connectivity
 
@@ -144,9 +90,17 @@ Deploying this template will create one or more Azure resources. You will be res
 
 # Further Reading
 
+Information on linked templates as used within this blueprint can be found in [Using linked and nested templates when deplopying Azure resources](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-linked-templates)
 
+Details on security best practices can be found in [Azure security best practices and patterns](https://docs.microsoft.com/en-us/azure/security/security-best-practices-and-patterns)
 
-Best practices on Azure Network Security and a decision-making matrix can be found in [Microsoft cloud services and network security](https://docs.microsoft.com/azure/best-practices-network-security).
+App Service best practices can be found in [Best Practices for Azure App Service](https://docs.microsoft.com/en-us/azure/app-service/app-service-best-practices)
+
+Azure SQL Database best practices are available in the docs page [Azure database security best practices](https://docs.microsoft.com/en-us/azure/security/azure-database-security-best-practices)
+
+Further information for key vault can be found in [Azure Key Vault Developer's Guide](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-developers-guide)
+
+Guidance on Azure storage can be found in [Azure Storage security guide](https://docs.microsoft.com/en-us/azure/storage/common/storage-security-guide) and [Azure Storage security overview](https://docs.microsoft.com/en-us/azure/security/security-storage-overview)
 
 # Disclaimer
 
