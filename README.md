@@ -46,7 +46,7 @@ The ```pre_reqs.sh``` script supports a number of command line arguments that al
 A deployment for this reference architecture is available on
 [GitHub](https://github.com/ianalderman/ukopaas). The templates can be cloned or downloaded if customisation of parameters is requried.  To deploy the architecture, follow the steps below.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/ianalderman/ukopaas/master/azuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fianalderman%2Fukopaas%2Fmaster%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
 
