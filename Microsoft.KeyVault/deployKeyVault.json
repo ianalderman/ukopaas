@@ -51,6 +51,13 @@
                 "description": "Suffix to apply to the name of the Key Vault"
             },
             "defaultValue": "vault"
+        },
+        "enableSoftDelete": {
+            "type": "bool",
+            "metadata": {
+                "description": "Should SoftDelete be enabled on the Key Vault?"
+            },
+            "defaultValue": "json('null')"
         }
     },
     "variables": {
