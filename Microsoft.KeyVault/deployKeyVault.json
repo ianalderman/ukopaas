@@ -57,7 +57,7 @@
             "metadata": {
                 "description": "Should SoftDelete be enabled on the Key Vault?"
             },
-            "defaultValue": "json('null')"
+            "defaultValue": "[json('null')]"
         }
     },
     "variables": {
@@ -77,7 +77,7 @@
                     "name": "Standard"
                 },
                 "enablePurgeProtection": true,
-                "enableSoftDelete": true,
+                "enableSoftDelete": "[parameters('enableSoftDelete')]",
                 "accessPolicies": "[parameters('accessPolicies')]",
                 "resources": [
                     {   
