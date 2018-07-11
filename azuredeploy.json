@@ -413,16 +413,6 @@
                 ],
                 "secrets": []
               }
-            },
-            {
-              "tenantId": "[reference('deployAzureSQLDatabase').outputs.azureSQLPaaSMSITenantId.value]",
-              "objectId": "[parameters('AADAdminObjectID')]",
-              "permissions": {
-                "keys": [],
-                "secrets": [
-                  "get"
-                ]
-              }
             }
           ]
           },
