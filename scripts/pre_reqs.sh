@@ -124,7 +124,7 @@ azureSQLResourceGroup=$(az group create -l $regionToDeployTo -n $rgBaseName-azur
 
 aadUserMail=$(az account show | jq ".user.name" -r)
 
-if [[ $aadUserMail == *"live.com#"* ]]; then
+if [[ $aadUserMail == *"#EXT#"* ]]; then
     upn=$(echo $aadUserMail | cut -d '#' -f 2)
     upnLeft=$(echo ${upn/@/"_"})
     upnRight=$(echo $upnLeft | cut -d "." -f 1)

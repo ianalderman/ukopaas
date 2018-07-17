@@ -20,10 +20,11 @@ Other Azure architectural best practices and guidance can be found in [Azure Ref
 
 ## Method 1: Azure CLI 2 (Express version)
 To deploy this solution through the Azure CLI, you will need the latest version of the [Azure CLI 2](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to use the BASH script that deploys the solution. Alternatively you can use the [Azure Cloud Shell](https://shell.azure.com/). To deploy the reference architecture, follow these steps:
-1. Download the BASH script pre_reqs.sh, for example with the command ```wget https://raw.githubusercontent.com/ianalderman/ukopaas/master/scripts/pre_reqs.sh```
-2. Execute the script by using the command ```bash pre_reqs.sh```
-3. If you do not know the short name of the region you wish to deploy to enter ```Y``` else enter ```N```
-4. Enter the short name of the region you wish to deploy to e.g. ```northeurope```
+1. If you have access to multiple subscriptions use the command ```az account set --subscription <subscription>``` to ensure you are targetting the correct subscription
+2. Download the BASH script pre_reqs.sh, for example with the command ```wget https://raw.githubusercontent.com/ianalderman/ukopaas/master/scripts/pre_reqs.sh```
+3. Execute the script by using the command ```bash pre_reqs.sh```
+4. If you do not know the short name of the region you wish to deploy to enter ```Y``` else enter ```N```
+5. Enter the short name of the region you wish to deploy to e.g. ```northeurope```
 
 > Note: The parameter files include hard-coded passwords in various places. It is strongly recommended that you change these values.
 > If the parameters files are not updated, the default values will be used which may not be compatible with your on-premises environment.
@@ -93,6 +94,7 @@ The indicative cost based on the services defined in the Blueprint are below. Th
 - App Service - UK West - Standard Tier; 1 S1 (1 Core(s), 1.75 GB RAM, 50 GB Storage) x 730 Hours; Windows OS £68.01
 - Key Vault UK West 100000 operations/mo, 0 advanced operations/mo, 0 renewals/mo, 0 protected keys/mo 0 advanced protected keys/mo £0.22
 - Azure SQL Database UK West Single Database, DTU Purchase Model, Standard Tier, S1: 20 DTUs, 250 GB included storage per DB, 1 Database(s) x 730 Hours, 5 GB Retention £27.43
+- Azure Advanced Threat detection for SQL Server charged at $15 per server per month (free for first 60 days)
 - Storage UK West Block Blob Storage, General Purpose V2, LRS Redundancy, Hot Access Tier, 1000 GB Capacity, 100,000 Write operations, 100,000 List and Create Container Operations, 100,000 Read operations, 1 Other operations. 1,000 GB Data Retrieval, 1,000 GB Data Write £15.22
 - Azure Active Directory West Europe Free tier, per-user MFA billing model, 10 MFA user(s), 25001-100000 directory objects, 0 Hours £10.43
 -Log Analytics West Europe 0 VMs monitored, 0 GB average log size, 0 additional days of data retention £0.00
@@ -101,7 +103,7 @@ The indicative cost based on the services defined in the Blueprint are below. Th
 - Security Center Free tier £0.00
 - Azure DNS West Europe 1 hosted DNS zones, 5 DNS queries £1.86
 
-Monthly Total £124.38 Annual Total £1,492.54
+Monthly Total £139.38 Annual Total £1,672.56
 
 
 # Further Reading
