@@ -77,9 +77,8 @@
     "sqlServerAdminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "The password for administering the SQL Server"
-      },
-      "defaultValue": "[concat('L1',uniqueString(subscription().id),'#')]"
+        "description": "The password for administering the SQL Server.  Your password should be >8 characters, a mix of alphanumeric and case.  Further details can be found at: https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-2017 "
+      }
     },
     "useAADForSQLAdmin": {
       "type": "string",
