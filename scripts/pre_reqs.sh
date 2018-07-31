@@ -114,8 +114,8 @@ if [[ $regions != *"$regionToDeployTo"* ]] || [[ ${#regionToDeployTo} -lt 6 ]]; 
     exit 1
 fi
 
-echo -n "Please enter a password for administering the deployed SQL Server, this should be at least 8 chars long and a mix of alhpanumeric and case."
-read sqlPassword
+echo -n "Please enter a password for administering the deployed SQL Server, this should be at least 8 chars long and a mix of alhpanumeric and case:"
+read -s sqlPassword
 
 if [[ ${#sqlPassword} -ge 8 && "$sqlPassword" == *[[:lower:]]* && "$sqlPassword" == *[[:upper:]]* && "$sqlPassword" == *[0-9]* ]]; then
     echo "Password OK"
