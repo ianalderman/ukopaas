@@ -134,12 +134,12 @@
     }
   ],
   "variables": {
-    "templateBaseUrl": "[deployment().properties.templateLink.uri]",
-    "appServiceTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.Web/deployAppService.json')]",
-    "storageAccountTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.Storage/deployStorageAccount.json')]",
-    "azureSQLTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
-    "azureKeyVaultTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
-    "logAnalyticsTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
+    "templateBaseUrl": "https://raw.githubusercontent.com/ianalderman/ukopaas/master/",
+    "appServiceTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Web/deployAppService.json')]",
+    "storageAccountTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Storage/deployStorageAccount.json')]",
+    "azureSQLTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
+    "azureKeyVaultTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
+    "logAnalyticsTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
     "storageAccountBaseName": "[uniqueString(resourceGroup().id)]"
   },
   "resources": [{
