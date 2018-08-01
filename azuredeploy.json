@@ -1,5 +1,6 @@
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "name": "pid-8286eaf5-74c6-4ddc-85cb-51f67af6a795",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "baseResourceName": {
@@ -77,8 +78,9 @@
     "sqlServerAdminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "The password for administering the SQL Server.  Your password should be >8 characters, a mix of alphanumeric and case.  Further details can be found at: https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-2017 "
-      }
+        "description": "The password for administering the SQL Server"
+      },
+      "defaultValue": "[concat('L1',uniqueString(subscription().id),'#')]"
     },
     "useAADForSQLAdmin": {
       "type": "string",
@@ -133,12 +135,12 @@
     }
   ],
   "variables": {
-    "templateBaseUrl": "https://raw.githubusercontent.com/ianalderman/ukopaas/master/",
-    "appServiceTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Web/deployAppService.json')]",
-    "storageAccountTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.Storage/deployStorageAccount.json')]",
-    "azureSQLTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
-    "azureKeyVaultTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
-    "logAnalyticsTemplateUrl": "[concat(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
+    "templateBaseUrl": "[deployment().properties.templateLink.uri]",
+    "appServiceTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.Web/deployAppService.json')]",
+    "storageAccountTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.Storage/deployStorageAccount.json')]",
+    "azureSQLTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.SQL/deployAzureSQLPaaS.json')]",
+    "azureKeyVaultTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.KeyVault/deployKeyVault.json')]",
+    "logAnalyticsTemplateUrl": "[uri(variables('templateBaseUrl'), 'Microsoft.OperationalInsights/deployLogAnalytics.json')]",
     "storageAccountBaseName": "[uniqueString(resourceGroup().id)]"
   },
   "resources": [{
